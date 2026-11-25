@@ -107,7 +107,14 @@ class _DashboardView extends StatelessWidget {
             ),
             if (isHome) ...[
               const SizedBox(height: 19),
-              const DashboardStats(),
+              DashboardStats(
+                totalPhotos: state.isLoading || state.errorMessage.isNotEmpty
+                    ? null
+                    : state.photos.length,
+                storageUsed: state.isLoading || state.errorMessage.isNotEmpty
+                    ? '—'
+                    : state.storageUsedLabel,
+              ),
               const SizedBox(height: 19),
               const Text(
                 'Recent Uploads',

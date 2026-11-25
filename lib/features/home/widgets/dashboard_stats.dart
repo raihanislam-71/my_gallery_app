@@ -3,25 +3,29 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 
 class DashboardStats extends StatelessWidget {
-  const DashboardStats({super.key});
+  const DashboardStats({
+    super.key,
+    required this.totalPhotos,
+    required this.storageUsed,
+  });
+
+  final int? totalPhotos;
+  final String storageUsed;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: const [
+      children: [
         Expanded(
           child: _StatCard(
             title: 'Total Photos',
-            value: '9',
+            value: totalPhotos?.toString() ?? '—',
             isHighlighted: true,
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Expanded(
-          child: _StatCard(
-            title: 'Storage Used',
-            value: '16.4 MB',
-          ),
+          child: _StatCard(title: 'Storage Used', value: storageUsed),
         ),
       ],
     );

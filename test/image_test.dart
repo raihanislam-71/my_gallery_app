@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:todo_app_exam/features/home/bloc/home_state.dart';
 import 'package:todo_app_exam/features/home/models/gallery_photo.dart';
 
 void main() {
@@ -31,5 +32,29 @@ void main() {
     expect(photo.imageUrl, 'https://api.fototidy.com/uploads/photo.jpg');
     expect(photo.size, '3.87 MB');
     expect(photo.date, '23 Aug 2026');
+  });
+
+  test('calculates total storage from all API photo sizes', () {
+    final state = HomeState(
+      photos: [
+        GalleryPhoto.fromJson({'id': 'photo-1', 'fileSize': 1500000}, 0),
+        GalleryPhoto.fromJson({'id': 'photo-2', 'fileSize': '2.5 MB'}, 1),
+      ],
+    );
+
+    expect(state.photos.length, 2);
+    expect(state.totalStorageBytes, 4000000);
+    expect(state.storageUsedLabel, '4 MB');
+  });
+
+  test('does not report a partial total when an image size is missing', () {
+    final state = HomeState(
+      photos: [
+        GalleryPhoto.fromJson({'id': 'photo-1', 'fileSize': 1500000}, 0),
+        GalleryPhoto.fromJson({'id': 'photo-2'}, 1),
+      ],
+    );
+
+    expect(state.storageUsedLabel, 'Unavailable');
   });
 }

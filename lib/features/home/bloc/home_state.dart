@@ -17,6 +17,16 @@ class HomeState extends Equatable {
   final bool isLoading;
   final String errorMessage;
 
+  int? get totalStorageBytes {
+    if (photos.any((photo) => photo.fileSizeBytes == null)) return null;
+    return photos.fold<int>(0, (total, photo) => total + photo.fileSizeBytes!);
+  }
+
+  String get storageUsedLabel {
+    final bytes = totalStorageBytes;
+    return bytes == null ? 'Unavailable' : GalleryPhoto.formatBytes(bytes);
+  }
+
   bool isFavorite(String photoId) => favoritePhotoIds.contains(photoId);
 
   HomeState copyWith({

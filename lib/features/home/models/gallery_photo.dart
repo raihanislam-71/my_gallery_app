@@ -10,6 +10,7 @@ class GalleryPhoto {
     required this.date,
     required this.topColor,
     required this.bottomColor,
+    this.fileSizeBytes,
     this.imageUrl,
     this.isAiGenerated = false,
     this.isFavorite = false,
@@ -20,14 +21,20 @@ class GalleryPhoto {
   final String date;
   final Color topColor;
   final Color bottomColor;
+  final int? fileSizeBytes;
   final String? imageUrl;
   final bool isAiGenerated;
   final bool isFavorite;
 
   factory GalleryPhoto.fromJson(Map<String, dynamic> json, int index) {
-    final formattedSize = _formatFileSize(
-      json['fileSize'] ?? json['file_size'] ?? json['size'],
-    );
+    final fileSize =
+        json['fileSize'] ??
+        json['file_size'] ??
+        json['sizeInBytes'] ??
+        json['size_in_bytes'] ??
+        json['size'];
+    final formattedSize = _formatFileSize(fileSize);
+    final fileSizeBytes = _parseFileSizeBytes(fileSize);
 
     final createdAt =
         (json['createdAt'] ??
@@ -79,6 +86,7 @@ class GalleryPhoto {
       date: formattedDate,
       topColor: colorPair[0],
       bottomColor: colorPair[1],
+      fileSizeBytes: fileSizeBytes,
       imageUrl: imageUrl,
       isAiGenerated: isAi,
       isFavorite: isFav,
@@ -100,6 +108,46 @@ class GalleryPhoto {
     }
 
     return '${sizeInMegabytes.toStringAsFixed(2)} MB';
+  }
+
+  static int? _parseFileSizeBytes(dynamic value) {
+    if (value is num) {
+      if (!value.isFinite || value < 0) return null;
+      return (value >= 1000 ? value : value * 1000000).round();
+    }
+
+    if (value is! String || value.trim().isEmpty) return null;
+    final match = RegExp(
+      r'^(\d+(?:\.\d+)?)\s*(bytes?|b|kb|mb|gb)?$',
+      caseSensitive: false,
+    ).firstMatch(value.trim());
+    if (match == null) return null;
+
+    final size = double.tryParse(match.group(1)!);
+    if (size == null || !size.isFinite || size < 0) return null;
+
+    final unit = match.group(2)?.toLowerCase();
+    final multiplier = switch (unit) {
+      'b' || 'byte' || 'bytes' => 1,
+      'kb' => 1000,
+      'mb' => 1000000,
+      'gb' => 1000000000,
+      _ => size >= 1000 ? 1 : 1000000,
+    };
+    return (size * multiplier).round();
+  }
+
+  static String formatBytes(int bytes) {
+    if (bytes < 1000) return '$bytes B';
+    final (value, unit) = bytes >= 1000000000
+        ? (bytes / 1000000000, 'GB')
+        : bytes >= 1000000
+        ? (bytes / 1000000, 'MB')
+        : (bytes / 1000, 'KB');
+    final formattedValue = value
+        .toStringAsFixed(2)
+        .replaceFirst(RegExp(r'\.?0+$'), '');
+    return '$formattedValue $unit';
   }
 
   static String? _resolveImageUrl(Map<String, dynamic> json) {

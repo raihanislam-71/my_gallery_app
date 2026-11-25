@@ -21,9 +21,9 @@ class NetworkCaller {
     String? token,
   }) async {
     try {
-      final String authToken = token ?? AuthController.accessToken ?? '';
+      final String authToken = await _resolveAuthToken(token);
       final Uri uri = Uri.parse(url);
-      _requestLog(url, {}, {}, authToken);
+      _requestLog(url, {}, {});
       final http.Response response = await http.get(
         uri,
         headers: {
@@ -73,9 +73,9 @@ class NetworkCaller {
     String? token,
   }) async {
     try {
-      final String authToken = token ?? AuthController.accessToken ?? '';
+      final String authToken = await _resolveAuthToken(token);
       final Uri uri = Uri.parse(url);
-      _requestLog(url, {}, body ?? {}, authToken);
+      _requestLog(url, {}, body ?? {});
       final http.Response response = await http.post(
         uri,
         body: jsonEncode(body),
@@ -126,9 +126,9 @@ class NetworkCaller {
     String? token,
   }) async {
     try {
-      final String authToken = token ?? AuthController.accessToken ?? '';
+      final String authToken = await _resolveAuthToken(token);
       final Uri uri = Uri.parse(url);
-      _requestLog(url, {}, {}, authToken);
+      _requestLog(url, {}, {});
       final http.Response response = await http.delete(
         uri,
         headers: {
@@ -178,9 +178,9 @@ class NetworkCaller {
     String? token,
   }) async {
     try {
-      final String authToken = token ?? AuthController.accessToken ?? '';
+      final String authToken = await _resolveAuthToken(token);
       final Uri uri = Uri.parse(url);
-      _requestLog(url, {}, body ?? {}, authToken);
+      _requestLog(url, {}, body ?? {});
       final http.Response response = await http.put(
         uri,
         body: jsonEncode(body),
@@ -233,9 +233,9 @@ class NetworkCaller {
     String? token,
   }) async {
     try {
-      final String authToken = token ?? AuthController.accessToken ?? '';
+      final String authToken = await _resolveAuthToken(token);
       final Uri uri = Uri.parse(url);
-      _requestLog(url, {}, body ?? {}, authToken);
+      _requestLog(url, {}, body ?? {});
       final http.Response response = await http.patch(
         uri,
         body: jsonEncode(body),
@@ -282,17 +282,28 @@ class NetworkCaller {
     }
   }
 
+  Future<String> _resolveAuthToken(String? token) async {
+    final cachedToken = AuthController.accessToken;
+    final storedToken = token ??
+        (cachedToken != null && cachedToken.isNotEmpty
+            ? cachedToken
+            : await authController.getAccessToken());
+    final normalizedToken = (storedToken ?? '').trim();
+    if (normalizedToken.toLowerCase().startsWith('bearer ')) {
+      return normalizedToken.substring(7).trim();
+    }
+    return normalizedToken;
+  }
+
   void _requestLog(
     String url,
     Map<String, dynamic> params,
     Map<String, dynamic> body,
-    String token,
   ) {
     logger.i('''
       Url : $url
       Params : $params
       Body : $body
-      Token : $token
       ''');
   }
 
