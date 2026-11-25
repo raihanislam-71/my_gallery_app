@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:todo_app_exam/core/services/auth_controller.dart';
-import 'package:todo_app_exam/features/splash/bloc/splash_bloc.dart';
-import 'package:todo_app_exam/features/splash/bloc/splash_event.dart';
-import 'package:todo_app_exam/features/splash/bloc/splash_state.dart';
+import 'package:my_gallary_app/core/services/auth_controller.dart';
+import 'package:my_gallary_app/features/splash/bloc/splash_bloc.dart';
+import 'package:my_gallary_app/features/splash/bloc/splash_event.dart';
+import 'package:my_gallary_app/features/splash/bloc/splash_state.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

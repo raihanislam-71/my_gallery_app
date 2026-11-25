@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:todo_app_exam/features/home/bloc/home_state.dart';
-import 'package:todo_app_exam/features/home/models/gallery_photo.dart';
+import 'package:my_gallary_app/features/home/bloc/home_state.dart';
+import 'package:my_gallary_app/features/home/models/gallery_photo.dart';
 
 void main() {
   test('parses imageUrl from API image field', () {

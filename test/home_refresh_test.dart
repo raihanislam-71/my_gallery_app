@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:todo_app_exam/core/models/network_response.dart';
-import 'package:todo_app_exam/core/network/api_client.dart';
-import 'package:todo_app_exam/features/home/bloc/home_bloc.dart';
-import 'package:todo_app_exam/features/home/bloc/home_event.dart';
+import 'package:my_gallary_app/core/models/network_response.dart';
+import 'package:my_gallary_app/core/network/api_client.dart';
+import 'package:my_gallary_app/features/home/bloc/home_bloc.dart';
+import 'package:my_gallary_app/features/home/bloc/home_event.dart';
 
 void main() {
   test(

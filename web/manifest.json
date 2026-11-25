@@ -1,6 +1,6 @@
 {
-    "name": "todo_app_exam",
-    "short_name": "todo_app_exam",
+    "name": "my_gallary_app",
+    "short_name": "my_gallary_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
