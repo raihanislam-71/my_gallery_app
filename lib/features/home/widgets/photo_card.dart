@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../models/gallery_photo.dart';
+import 'photo_image_stub.dart'
+    if (dart.library.js_interop) 'photo_image_web.dart'
+    as photo_image;
 
 class PhotoCard extends StatelessWidget {
   const PhotoCard({
@@ -36,29 +39,9 @@ class PhotoCard extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         if (photo.imageUrl != null && photo.imageUrl!.isNotEmpty)
-          Image.network(
-            photo.imageUrl!,
-            fit: BoxFit.cover,
-            headers: const {
-              'User-Agent':
-                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            },
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Container(
-                color: photo.topColor.withValues(alpha: 0.3),
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: AppColors.primary,
-                  ),
-                ),
-              );
-            },
-            errorBuilder: (context, error, stackTrace) {
-              debugPrint('Image load error for ${photo.imageUrl}: $error');
-              return _buildGradientPlaceholder();
-            },
+          photo_image.buildPhotoImage(
+            imageUrl: photo.imageUrl!,
+            placeholder: _buildGradientPlaceholder(),
           )
         else
           _buildGradientPlaceholder(),
@@ -117,11 +100,7 @@ class PhotoCard extends StatelessWidget {
         ),
       ),
       child: const Center(
-        child: Icon(
-          Icons.image_outlined,
-          color: Colors.white,
-          size: 34,
-        ),
+        child: Icon(Icons.image_outlined, color: Colors.white, size: 34),
       ),
     );
   }
@@ -146,10 +125,7 @@ class PhotoCard extends StatelessWidget {
             const SizedBox(height: 5),
             Text(
               photo.date,
-              style: const TextStyle(
-                color: AppColors.mutedText,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: AppColors.mutedText, fontSize: 12),
             ),
           ],
         ),

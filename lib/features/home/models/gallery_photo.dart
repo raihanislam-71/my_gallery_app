@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/api_urls.dart';
 
 class GalleryPhoto {
   const GalleryPhoto({
@@ -24,31 +25,43 @@ class GalleryPhoto {
   final bool isFavorite;
 
   factory GalleryPhoto.fromJson(Map<String, dynamic> json, int index) {
-    final rawSize = json['fileSize'];
-    double sizeNum = 0.0;
-    if (rawSize is num) {
-      sizeNum = rawSize.toDouble();
-    } else if (rawSize is String) {
-      sizeNum = double.tryParse(rawSize) ?? 0.0;
-    }
-    final formattedSize =
-        sizeNum > 0 ? '${sizeNum.toStringAsFixed(2)} MB' : '1.5 MB';
+    final formattedSize = _formatFileSize(
+      json['fileSize'] ?? json['file_size'] ?? json['size'],
+    );
 
-    final createdAt = json['createdAt']?.toString() ?? '';
+    final createdAt =
+        (json['createdAt'] ??
+                json['created_at'] ??
+                json['uploadedAt'] ??
+                json['uploadDate'] ??
+                json['date'])
+            ?.toString() ??
+        '';
     String formattedDate = 'Recent';
     if (createdAt.isNotEmpty) {
       try {
         final dt = DateTime.parse(createdAt);
         final months = [
-          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
         ];
         formattedDate = '${dt.day} ${months[dt.month - 1]} ${dt.year}';
       } catch (_) {}
     }
 
-    final imageUrl = json['image']?.toString();
-    final isAi = (json['isAiGenerated'] == true) ||
+    final imageUrl = _resolveImageUrl(json);
+    final isAi =
+        (json['isAiGenerated'] == true) ||
         (imageUrl != null && imageUrl.contains('ai-images'));
     final isFav = json['isFavorite'] == true;
 
@@ -71,36 +84,71 @@ class GalleryPhoto {
       isFavorite: isFav,
     );
   }
-}
 
-const recentGalleryPhotos = [
-  GalleryPhoto(
-    id: '1',
-    size: '3.87 MB',
-    date: '23 Aug 2026',
-    topColor: Color(0xFFCFC7FF),
-    bottomColor: AppColors.photoPurple,
-  ),
-  GalleryPhoto(
-    id: '2',
-    size: '3.08 MB',
-    date: '23 Aug 2026',
-    topColor: Color(0xFFC1E3FF),
-    bottomColor: AppColors.photoBlue,
-  ),
-  GalleryPhoto(
-    id: '3',
-    size: '17 Aug 2026',
-    date: '17 Aug 2026',
-    topColor: Color(0xFFFFD1BC),
-    bottomColor: AppColors.photoOrange,
-  ),
-  GalleryPhoto(
-    id: '4',
-    size: '1.05 MB',
-    date: '10 Aug 2026',
-    topColor: Color(0xFFC2F3D5),
-    bottomColor: AppColors.photoGreen,
-    isAiGenerated: true,
-  ),
-];
+  static String _formatFileSize(dynamic value) {
+    if (value is String && value.trim().isNotEmpty) {
+      final parsed = double.tryParse(value.trim());
+      if (parsed == null) return value.trim();
+      value = parsed;
+    }
+
+    if (value is! num || value <= 0) return 'Size unavailable';
+
+    var sizeInMegabytes = value.toDouble();
+    if (sizeInMegabytes >= 1000) {
+      sizeInMegabytes /= 1000000;
+    }
+
+    return '${sizeInMegabytes.toStringAsFixed(2)} MB';
+  }
+
+  static String? _resolveImageUrl(Map<String, dynamic> json) {
+    const directKeys = [
+      'image',
+      'imagePath',
+      'image_path',
+      'imageUrl',
+      'imageURL',
+      'image_url',
+      'photo',
+      'photoUrl',
+      'photo_url',
+      'url',
+      'path',
+      'src',
+      'fileUrl',
+      'file_url',
+      'secureUrl',
+      'secure_url',
+    ];
+
+    for (final key in directKeys) {
+      final value = json[key];
+      if (value is String && value.trim().isNotEmpty) {
+        return _makeAbsoluteUrl(value.trim());
+      }
+      if (value is Map) {
+        final nestedUrl = _resolveImageUrl(Map<String, dynamic>.from(value));
+        if (nestedUrl != null) return nestedUrl;
+      }
+    }
+
+    for (final key in const ['thumbnail', 'preview', 'attachment', 'data']) {
+      final value = json[key];
+      if (value is Map) {
+        final nestedUrl = _resolveImageUrl(Map<String, dynamic>.from(value));
+        if (nestedUrl != null) return nestedUrl;
+      }
+    }
+
+    return null;
+  }
+
+  static String _makeAbsoluteUrl(String url) {
+    final parsed = Uri.parse(url);
+    if (parsed.hasScheme) return url;
+
+    final origin = Uri.parse(ApiUrls.baseUrl).origin;
+    return Uri.parse(origin).resolve(url).toString();
+  }
+}

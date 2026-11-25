@@ -44,10 +44,8 @@ class _DashboardView extends StatelessWidget {
                     email: email.isEmpty
                         ? AuthController.userEmail ?? 'samimcse7@gmail.com'
                         : email,
-                    onNotificationTap: () => _showMessage(
-                      context,
-                      'You are all caught up.',
-                    ),
+                    onNotificationTap: () =>
+                        _showMessage(context, 'You are all caught up.'),
                     onLogout: () async {
                       await AuthController().clearUserData();
                       if (context.mounted) {
@@ -66,10 +64,8 @@ class _DashboardView extends StatelessWidget {
             onTabSelected: (index) {
               context.read<HomeBloc>().add(DashboardTabChanged(index));
             },
-            onAddPhoto: () => _showMessage(
-              context,
-              'Photo upload feature coming soon.',
-            ),
+            onAddPhoto: () =>
+                _showMessage(context, 'Photo upload feature coming soon.'),
           ),
         );
       },
@@ -85,13 +81,13 @@ class _DashboardView extends StatelessWidget {
     final title = isHome
         ? 'My Gallery'
         : isFavorites
-            ? 'Favorites'
-            : 'Gallery';
+        ? 'Favorites'
+        : 'Gallery';
     final eyebrow = isHome
         ? 'Welcome back'
         : isFavorites
-            ? 'Your favorite photos'
-            : 'All your photos';
+        ? 'Your favorite photos'
+        : 'All your photos';
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -131,6 +127,8 @@ class _DashboardView extends StatelessWidget {
                   child: CircularProgressIndicator(color: AppColors.primary),
                 ),
               )
+            else if (state.errorMessage.isNotEmpty)
+              _buildLoadError(context, state.errorMessage)
             else if (photos.isEmpty)
               _buildEmptyState(isFavorites)
             else
@@ -138,9 +136,7 @@ class _DashboardView extends StatelessWidget {
                 photos: photos,
                 state: state,
                 onFavoriteTap: (photoId) {
-                  context
-                      .read<HomeBloc>()
-                      .add(GalleryFavoriteToggled(photoId));
+                  context.read<HomeBloc>().add(GalleryFavoriteToggled(photoId));
                 },
               ),
           ],
@@ -175,6 +171,42 @@ class _DashboardView extends StatelessWidget {
                 : 'Upload photos to see them displayed in your gallery.',
             textAlign: TextAlign.center,
             style: const TextStyle(color: AppColors.mutedText, fontSize: 13),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadError(BuildContext context, String message) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 64),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.cloud_off_outlined,
+            color: AppColors.mutedText,
+            size: 44,
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Could not load photos',
+            style: TextStyle(
+              color: AppColors.text,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.mutedText, fontSize: 13),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () =>
+                context.read<HomeBloc>().add(const HomeFetchPhotos()),
+            child: const Text('Try again'),
           ),
         ],
       ),
