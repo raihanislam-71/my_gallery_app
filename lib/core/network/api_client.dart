@@ -42,7 +42,7 @@ class NetworkCaller {
       } else {
         _responseLog(url, response.statusCode, response.body, response.headers, false);
         if (response.statusCode == 401) {
-          await authController.clearUserData();
+          await authController.clearAccessToken();
         }
         dynamic decodedBody;
         try {
@@ -96,7 +96,7 @@ class NetworkCaller {
       } else {
         _responseLog(url, response.statusCode, response.body, response.headers, false);
         if (response.statusCode == 401) {
-          await authController.clearUserData();
+          await authController.clearAccessToken();
         }
         dynamic decodedBody;
         try {
@@ -148,7 +148,7 @@ class NetworkCaller {
 
       _responseLog(url, response.statusCode, response.body, response.headers, false);
       if (response.statusCode == 401) {
-        await authController.clearUserData();
+        await authController.clearAccessToken();
       }
       dynamic decodedBody;
       try {
@@ -202,7 +202,7 @@ class NetworkCaller {
       } else {
         _responseLog(url, response.statusCode, response.body, response.headers, false);
         if (response.statusCode == 401) {
-          await authController.clearUserData();
+          await authController.clearAccessToken();
         }
         dynamic decodedBody;
         try {
@@ -257,7 +257,7 @@ class NetworkCaller {
       } else {
         _responseLog(url, response.statusCode, response.body, response.headers, false);
         if (response.statusCode == 401) {
-          await authController.clearUserData();
+          await authController.clearAccessToken();
         }
         dynamic decodedBody;
         try {

@@ -12,14 +12,16 @@ Widget buildPhotoImage({
   final viewType = 'img-view-${imageUrl.hashCode}';
 
   if (_registeredViewTypes.add(viewType)) {
-    ui_web.platformViewRegistry.registerViewFactory(
-      viewType,
-      (int viewId) => html.ImageElement()
+    ui_web.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
+      final image = html.ImageElement()
         ..src = imageUrl
         ..style.width = '100%'
         ..style.height = '100%'
-        ..style.objectFit = 'cover',
-    );
+        ..style.objectFit = 'cover';
+      image.setAttribute('loading', 'lazy');
+      image.setAttribute('decoding', 'async');
+      return image;
+    });
   }
 
   return HtmlElementView(viewType: viewType);

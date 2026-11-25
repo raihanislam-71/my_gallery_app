@@ -95,7 +95,7 @@ class _DashboardView extends StatelessWidget {
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -108,10 +108,14 @@ class _DashboardView extends StatelessWidget {
             if (isHome) ...[
               const SizedBox(height: 19),
               DashboardStats(
-                totalPhotos: state.isLoading || state.errorMessage.isNotEmpty
+                totalPhotos:
+                    state.photos.isEmpty &&
+                        (state.isLoading || state.errorMessage.isNotEmpty)
                     ? null
                     : state.photos.length,
-                storageUsed: state.isLoading || state.errorMessage.isNotEmpty
+                storageUsed:
+                    state.photos.isEmpty &&
+                        (state.isLoading || state.errorMessage.isNotEmpty)
                     ? '—'
                     : state.storageUsedLabel,
               ),

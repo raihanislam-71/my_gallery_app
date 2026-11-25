@@ -6,8 +6,8 @@ import 'splash_state.dart';
 
 class SplashBloc extends Bloc<SplashEvent, SplashState> {
   SplashBloc({AuthController? authController})
-      : _authController = authController ?? AuthController(),
-        super(const SplashInitial()) {
+    : _authController = authController ?? AuthController(),
+      super(const SplashInitial()) {
     on<SplashStarted>(_onSplashStarted);
   }
 
@@ -21,9 +21,11 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
     final token = await _authController.getAccessToken();
     if (!emit.isDone) {
       if (token != null && token.isNotEmpty) {
-        emit(SplashNavigateToHome(
-          email: AuthController.userEmail ?? 'samimcse7@gmail.com',
-        ));
+        emit(
+          SplashNavigateToHome(
+            email: AuthController.userEmail ?? 'samimcse7@gmail.com',
+          ),
+        );
       } else {
         emit(const SplashNavigateToLogin());
       }

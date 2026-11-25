@@ -32,6 +32,12 @@ class AuthController {
     userEmail = null;
   }
 
+  Future<void> clearAccessToken() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.remove(_accessTokenKey);
+    accessToken = null;
+  }
+
   bool isLoggedInUser() {
     return accessToken != null && accessToken!.isNotEmpty;
   }

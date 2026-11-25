@@ -38,23 +38,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final response = await _networkCaller.getRequest(url: ApiUrls.myPhotos);
 
     if (response.isSuccess && response.responseData != null) {
-      final rawData = _extractPhotoList(response.responseData);
-      if (rawData is List) {
-        final List<GalleryPhoto> loadedPhotos = [];
-        for (int i = 0; i < rawData.length; i++) {
-          var item = rawData[i];
-          if (item is Map) {
-            final photo = Map<String, dynamic>.from(item);
-            for (final nestedKey in const ['photo', 'file', 'upload']) {
-              final nested = item[nestedKey];
-              if (nested is Map) {
-                photo.addAll(Map<String, dynamic>.from(nested));
-              }
-            }
-            loadedPhotos.add(GalleryPhoto.fromJson(photo, i));
-          }
-        }
-
+      final loadedPhotos = _parsePhotos(response.responseData);
+      if (loadedPhotos != null) {
         final favoriteIds = loadedPhotos
             .where((p) => p.isFavorite)
             .map((p) => p.id)
@@ -82,6 +67,27 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             : response.errorMessage ?? 'Failed to load photos.',
       ),
     );
+  }
+
+  List<GalleryPhoto>? _parsePhotos(dynamic responseData) {
+    final rawData = _extractPhotoList(responseData);
+    if (rawData is! List) return null;
+
+    final List<GalleryPhoto> loadedPhotos = [];
+    for (int i = 0; i < rawData.length; i++) {
+      final item = rawData[i];
+      if (item is Map) {
+        final photo = Map<String, dynamic>.from(item);
+        for (final nestedKey in const ['photo', 'file', 'upload']) {
+          final nested = item[nestedKey];
+          if (nested is Map) {
+            photo.addAll(Map<String, dynamic>.from(nested));
+          }
+        }
+        loadedPhotos.add(GalleryPhoto.fromJson(photo, i));
+      }
+    }
+    return loadedPhotos;
   }
 
   dynamic _extractPhotoList(dynamic responseData) {
